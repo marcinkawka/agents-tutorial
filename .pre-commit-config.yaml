@@ -1,0 +1,69 @@
+# .pre-commit-config.yaml
+# Minimal, fast, batteries-included setup (2025 edition)
+
+minimum_pre_commit_version: "3.7.0"
+
+ci:
+  autofix_prs: true
+  autoupdate_schedule: monthly
+
+default_language_version:
+  python: python3.12
+
+# Files/folders we usually don’t want to scan
+exclude: |
+  (?x)(
+    ^dist/|
+    ^build/|
+    ^\.venv/|
+    ^\.mypy_cache/|
+    ^\.ruff_cache/|
+    ^__pycache__/|
+    ^coverage\.xml$
+  )
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-ast
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+
+  # Ruff (linter + formatter)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.8
+    hooks:
+      - id: ruff
+        args: ["--exit-non-zero-on-fix", "--fix"]
+      - id: ruff-format
+
+  # # Type checking
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.14.0
+  #   hooks:
+  #     - id: mypy
+  #       additional_dependencies:
+  #         - types-requests
+  #         - types-PyYAML
+  #       args:
+  #         - --warn-unreachable
+  #         - --warn-unused-configs
+
+  # Import ordering (optional if not letting Ruff handle it)
+  - repo: https://github.com/asottile/reorder_python_imports
+    rev: v3.13.0
+    hooks:
+      - id: reorder-python-imports
+        args:
+          - --application-directories=.:src
+          - --add-import=from __future__ import annotations
+
+# Tips:
+#  - Run: pre-commit install && pre-commit run --all-files
+#  - Keep hooks fast; push heavy checks (full test suite) to CI.
